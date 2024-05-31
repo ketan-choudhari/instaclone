@@ -3,7 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var expressSession = require('express-session');
+const expressSession = require('express-session');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -15,13 +15,17 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
+
+// ye code k vja se banda logged in rhyenga
+// allow krta data save ho
 app.use(expressSession({
   resave: false,
   saveUninitialized: false,
   secret: "heyheyehhdd"
 }));
-app.use(passport.initialize());
-app.use(passport.session());
+
+app.use(passport.initialize()); // passport voh banda hai jo pura login,register aur routes banayenga.
+app.use(passport.session());// session mtlan data hold krna
 passport.serializeUser(usersRouter.serializeUser());
 passport.deserializeUser(usersRouter.deserializeUser());
 

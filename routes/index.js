@@ -1,11 +1,11 @@
 var express = require("express");
 var router = express.Router();
 const passport = require("passport");
-const localStrategy = require("passport-local");
+const localStrategy = require("passport-local"); // allow to create account
 const userModel = require("./users");
 const postModel = require("./posts");
 const storyModel = require("./story");
-passport.use(new localStrategy(userModel.authenticate()));
+passport.use(new localStrategy(userModel.authenticate())); // logged in rakh rha ho
 const upload = require("./multer");
 const utils = require("../utils/utils");
 
@@ -134,28 +134,37 @@ router.get("/search/:user", isLoggedIn, async function (req, res) {
   res.json(users);
 });
 
+
+// jo chize hai voh display krka rakhta hai
 router.get("/edit", isLoggedIn, async function (req, res) {
   const user = await userModel.findOne({ username: req.session.passport.user });
   res.render("edit", { footer: true, user });
 });
 
+// upload hui hui image dikhti hai
 router.get("/upload", isLoggedIn, async function (req, res) {
   let user = await userModel.findOne({ username: req.session.passport.user });
   res.render("upload", { footer: true, user });
 });
 
+
+// multer is a middleware for handling multipart/form-data, which is primarily used for uploading files in Node.js applications. It makes it easier to handle file uploads in Express applications by providing various options for storage and file handling.
+
+
+// update profile,username,name,bio
 router.post("/update", isLoggedIn, async function (req, res) {
   const user = await userModel.findOneAndUpdate(
     { username: req.session.passport.user },
     { username: req.body.username, name: req.body.name, bio: req.body.bio },
     { new: true }
-  );
+  ); 
   req.login(user, function (err) {
     if (err) throw err;
     res.redirect("/profile");
   });
 });
 
+// posts, stories
 router.post(
   "/post",
   isLoggedIn,
@@ -203,6 +212,7 @@ router.post(
 
 // POST
 
+// create account
 router.post("/register", function (req, res) {
   const user = new userModel({
     username: req.body.username,
@@ -217,6 +227,9 @@ router.post("/register", function (req, res) {
   });
 });
 
+
+// you can do direct copy paste
+
 router.post(
   "/login",
   passport.authenticate("local", {
@@ -226,7 +239,7 @@ router.post(
   function (req, res) {}
 );
 
-router.get("/logout", function (req, res) {
+router.get("/logout", function (req, res,next) {
   req.logout(function (err) {
     if (err) {
       return next(err);
@@ -235,6 +248,8 @@ router.get("/logout", function (req, res) {
   });
 });
 
+
+// Jab tak voh logged in nhi hai voh khi nhi ja skta jaise search,profile,feed
 function isLoggedIn(req, res, next) {
   if (req.isAuthenticated()) {
     return next();
